@@ -88,7 +88,7 @@ const MyProfile = () => {
         <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700">
           <p className="font-medium">Gender:</p>
           {isEdit ? (
-            <select className="max-w-20 bg-gray-100"
+            <select className="max-w-20 bg-gray-200"
               onChange={(e) =>
                 setUserData((prev) => ({ ...prev, gender: e.target.value }))
               }
