@@ -1,22 +1,26 @@
- import express from 'express'
- import cors from 'cors'
- import 'dotenv/config'
- import connectDB from './config/mongodb.js' 
- import connectCloudinary from './config/cloudinary.js'
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import connectDB from "./config/mongodb.js";
+import connectCloudinary from "./config/cloudinary.js";
+import adminRouter from "./routes/adminRoute.js";
+import doctorRouter from "./routes/doctorRoute.js";
 
- //app config
+//app config
 
- const app = express()
- const port = process.env.PORT||4000
- connectDB()
- connectCloudinary()
+const app = express();
+const port = process.env.PORT || 4000;
+connectDB();
+connectCloudinary();
 
- //MIDDLEWARES
- app.use(express.json())
- app.use(cors());
+//MIDDLEWARES
+app.use(express.json());
+app.use(cors());
+//adding api endpoints
+app.use("/api/admin", adminRouter);
+app.use("/api/doctor", doctorRouter);
+app.get("/", (req, res) => {
+  res.send("API WORKING by aditya");
+});
 
- app.get('/',(req,res)=>{
-    res.send("API WORKING by aditya");
- })
-
- app.listen(port,()=>console.log("SERVER STARTED",port))
+app.listen(port, () => console.log("SERVER STARTED", port));
