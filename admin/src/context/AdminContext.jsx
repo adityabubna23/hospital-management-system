@@ -61,23 +61,48 @@ const AdminContextProvider = (props) => {
       toast.error(error.message);
     }
   };
-  const cancelAppointment = async (appointmentId) => {
-    try {
-      const { data } = await axios.post(
-        backendUrl + "/api/admin/cancel-appointment",
-        { appointmentId },
-        { headers: { aToken } }
+const cancelAppointment = async (appointmentId) => {
+  try {
+    const { data } = await axios.post(
+      backendUrl + "/api/admin/cancel-appointment",
+      { appointmentId },
+      { headers: { aToken } }
+    );
+    if (data.success) {
+      // Update appointments state
+      setAppointments(prev => 
+        prev.map(appointment => 
+          appointment._id === appointmentId 
+            ? { ...appointment, cancelled: true } 
+            : appointment
+        )
       );
-      if (data.success) {
-        toast.success(data.message);
-        getAllAppointments();
-      } else {
-        toast.error(data.message);
+      
+      // Update dashData state if it exists
+      if (dashData && dashData.latestAppointments) {
+        setDashData(prev => ({
+          ...prev,
+          latestAppointments: prev.latestAppointments.map(appointment => 
+            appointment._id === appointmentId 
+              ? { ...appointment, cancelled: true } 
+              : appointment
+          )
+        }));
       }
-    } catch (error) {
-      toast.error(error.message);
+      
+      toast.success(data.message);
+      
+      // Optional: Refresh data from backend
+      // getAllAppointments();
+      // getDashData();
+    } else {
+      toast.error(data.message);
     }
-  };
+  } catch (error) {
+    console.log(error);
+    toast.error(error.message);
+  }
+};
   const getDashData = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/admin/dashboard", {
@@ -85,6 +110,7 @@ const AdminContextProvider = (props) => {
       });
       if (data.success) {
         setDashData(data.dashData);
+        console.log(data.dashData);
       } else {
         toast.error(data.message);
       }
