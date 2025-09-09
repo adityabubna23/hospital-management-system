@@ -4,39 +4,55 @@ import { useContext } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { DoctorContext } from '../context/DoctorContext'
 
 const Login = () => {
   const [state, setState] = useState('Admin')
 
   const {setAToken,backendUrl} = useContext(AdminContext);
+  const {setDToken} = useContext(DoctorContext);
   const[email,setEmail] = useState('');
   const[password,setPassword] = useState('');
 
-const onSubmitHandler = async(event)=>{
-event.preventDefault(); 
-try {
-    if(state==='Admin')
-    {
-      const {data} = await axios.post(backendUrl+'/api/admin/login',{email,password});
-      if(data.success)
-      {
-       
-        localStorage.setItem('atoken',data.token);
+const onSubmitHandler = async(event) => {
+  event.preventDefault(); 
+  try {
+    if(state === 'Admin') {
+      const {data} = await axios.post(backendUrl+'/api/admin/login', {email, password});
+      if(data.success) {
+        // Remove doctor token if exists
+        localStorage.removeItem('dtoken');
+        // Set admin token
+        localStorage.setItem('atoken', data.token);
         setAToken(data.token);
-      }else
-    {
-      toast.error(data.message);
+        toast.success('Admin login successful');
+        // Clear form fields
+        setEmail('');
+        setPassword('');
+      } else {
+        toast.error(data.message);
+      }
     }
+    else {
+      const {data} = await axios.post(backendUrl+'/api/doctor/login', {email, password});
+      if(data.success) {
+        // Remove admin token if exists
+        localStorage.removeItem('atoken');
+        // Set doctor token
+        localStorage.setItem('dtoken', data.token);
+        setDToken(data.token);
+        toast.success('Doctor login successful');
+        // Clear form fields
+        setEmail('');
+        setPassword('');
+      } else {
+        toast.error(data.message);
+      }
     }
-    else{
-      
-    }
-    
-} catch (error) {
-    
+  } catch (error) {
+    toast.error(error.message);
+  }
 }
-}
-
 
 
   return (
